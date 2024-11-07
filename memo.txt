@@ -1,0 +1,32 @@
+### Rating Prediction
+
+## Personalized Prompts
+
+# 3 Categories
+
+  1. Given the information about a user/item, directly predict the rating score ranging 1 to 5
+  2. Predict whether a user will rate an item a given score (Yes/No)
+  3. Predict whether a user will have a positive/negative preference for an item
+
+# Dataset
+
+  - McAuley-Lab/Amazon-Reviews-2023
+  - Toys & Games
+
+# Task Splits
+  - *Whether we need to ensure that the training set for each user and item contains at least one instance?
+
+# Implementation Details
+  - LLM(Backbone) :
+  - Tokenizer :
+      - Maximum length =
+  - Optimizer :
+      - Learning rate =
+      - Warmup stage =
+  - Batch Size :
+  - Rate : *Gaussian sampling
+
+# Metrics
+  - Root Mean Square Error(RMSE)
+  - Mean Absolute Error(MAE)
+  

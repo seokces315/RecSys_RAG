@@ -1,0 +1,6 @@
+python=3.11
+numpy
+torch
+datasets
+transformers
+accelerate
