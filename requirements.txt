@@ -4,3 +4,6 @@ torch
 datasets
 transformers
 accelerate
+bitsandbytes
+peft
+trl
