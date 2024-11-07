@@ -1,6 +1,6 @@
 import os
 import sys
-from torch.utils.data import Dataset
+from datasets import Dataset
 
 # Add certain path for importing modules
 new_path = os.path.join(os.path.dirname(__file__), "../data")
@@ -89,12 +89,6 @@ template["target"] = "{}"
 rating_tasks["3-1"] = template
 
 
-# Define custom dataset
-class PPDataset(Dataset):
-    def __init__():
-        return
-
-
 # Mapping function - Review
 def asin_join(data_dict, amazon_meta_dict):
 
@@ -127,15 +121,57 @@ def join_dataset(category):
     return amazon_review_dataset
 
 
+# Mapping function - Review
+def prompt_transform(data_dict, prompt_format):
+
+    data_dict["prompt"] = prompt_format.format(data_dict["user_id"], data_dict["asin"])
+
+    return data_dict
+  
+
 # Method to generate personalized prompts
-def generate_prompts(dataset, test_size, task_id, train_size=None):
+def generate_prompts(dataset, test_size, rag_size, task_id_list):
+  
+    # Local vars
+    data = dict()
+    upper_bound_prompts = []
+    upper_bound_targets = []
+    base_prompts = []
+    base_targets = []
+    rag_prompts = []
 
     # Split given dataset into train/test
-    dataset = dataset.train_test_split(test_size=test_size, shuffle=True)
+    upper_bound_dataset = dataset.train_test_split(test_size=test_size, shuffle=True)
+    # Split upper bound dataset into Base/RAG
+    base_dataset = upper_bound_dataset["train"].train_test_split(test_size=rag_size, shuffle=True)
+    
+    # Create personalized prompts based on task_id
+    for task_id in task_id_list:
+        if rating_tasks[task_id] is not None:
+            prompt_format = rating_tasks[task_id]["source"] # Task prompt
+            
+            # Apply a function to format the prompt
+            base_dataset = base_dataset["train"].map(
+              lambda x: prompt_transform(x, prompt_format)
+            )
+            base_prompts = base_dataset["prompt"]
+            base_targets = base_dataset["rating"]
+            
+    # Integrate prompts and targets into one data dictionary
+    data["base_prompts"] = base_prompts
+    data["base_targets"] = base_targets
 
-    return
+    return data
 
 
 # Method to create a dataset with personalized prompts
-def load_dataset():
-    return
+def load_dataset(data):
+  
+    # Define base dataset
+    base_dict = {
+      "text": data["base_prompts"],
+      "target": data["base_targets"]
+    }
+    base_dataset = Dataset.from_dict(base_dict)
+    
+    return base_dataset
